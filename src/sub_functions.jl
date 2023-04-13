@@ -1,10 +1,10 @@
 # for free Brownian motion
 
 """ update idx_lig, position of the bound ligand, and return output::Int """
-function update_idx!(idx_lig::Vector{Int}, pos_x::Vector{Float64},
-    pos_y::Vector{Float64}, pos_z::Vector{Float64}, pos_rec::Vector{Float64},
-    D_box::Vector{Float64}, gamma::Float64, alpha::Float64, vx::Float64,
-    Temp::Float64, cutoff::Float64, Eon::Float64, Eoff::Float64, Eb::Float64)
+function update_idx!(idx_lig::Vector{Int}, pos_x::Vector{Float64}, pos_y::Vector{Float64},
+    pos_z::Vector{Float64}, pos_rec::Vector{Float64}, D_box::Vector{Float64},
+    gamma::Float64, alpha::Float64, vx::Float64, Temp::Float64, cutoff::Float64,
+    Eon::Float64, Eoff::Float64, Eb::Float64)
     within_lig = Int.([])
     output = 0
     if idx_lig[1] == 0
@@ -42,8 +42,8 @@ function update_idx!(idx_lig::Vector{Int}, pos_x::Vector{Float64},
     return output
 end
 
-function count_freq!(seg::Array{Int,2}, freq::Vector{Int}, i::Int, output::Int,
-    n_t::Int, time_lag::Int)
+function count_freq!(seg::Array{Int,2}, freq::Vector{Int}, i::Int, output::Int, n_t::Int,
+    time_lag::Int)
     idx = get_idx(i, n_t, time_lag)
     seg[idx] = output
     x, y = get_coord(idx, time_lag)
@@ -54,8 +54,8 @@ function count_freq!(seg::Array{Int,2}, freq::Vector{Int}, i::Int, output::Int,
     return nothing
 end
 
-function count_freq!(seg::Dict{Int,Array{Int,2}}, freq::Dict{Int,Vector{Int}},
-    i::Int, output::Int, time_lag::Int)
+function count_freq!(seg::Dict{Int,Array{Int,2}}, freq::Dict{Int,Vector{Int}}, i::Int,
+    output::Int, time_lag::Int)
     for key in keys(seg)
         idx = get_idx(i, key, time_lag)
         seg[key][idx] = output
@@ -122,21 +122,19 @@ function steepest_descent!(pos_x::Vector{Float64}, pos_y::Vector{Float64},
     jloop::Vector{Int}, nstep::Int)
     h = fill(0.1, length(pos_x)) # initial h value, 0.1 is enough for our system
     for i = 1:nstep
-        update_force!(force_x, force_y, force_z, pos_x, pos_y, pos_z, D_box,
-            kloop, jloop)
+        update_force!(force_x, force_y, force_z, pos_x, pos_y, pos_z, D_box, kloop, jloop)
         maxF = maximum(sqrt.(force_x .^ 2 + force_y .^ 2 + force_z .^ 2))
         if maxF == 0.0
             println("Energy minimized at $i steps")
             return nothing
         end
-        energy_x, energy_y, energy_z = calc_energy(pos_x, pos_y, pos_z, D_box,
-            kloop, jloop)
+        energy_x, energy_y, energy_z = calc_energy(pos_x, pos_y, pos_z, D_box, kloop, jloop)
         new_pos_x = pos_x .+ force_x ./ maxF .* h
         new_pos_y = pos_y .+ force_y ./ maxF .* h
         new_pos_z = pos_z .+ force_z ./ maxF .* h
         apply_boundary!(new_pos_x, new_pos_y, new_pos_z, D_box)
-        new_energy_x, new_energy_y, new_energy_z = calc_energy(new_pos_x,
-            new_pos_y, new_pos_z, D_box, kloop, jloop) # new energy calc
+        new_energy_x, new_energy_y, new_energy_z = calc_energy(new_pos_x, new_pos_y,
+            new_pos_z, D_box, kloop, jloop) # new energy calc
         idx_x = new_energy_x .< energy_x
         idx_y = new_energy_y .< energy_y
         idx_z = new_energy_z .< energy_z
@@ -150,8 +148,7 @@ end
 """ update force """
 function update_force!(force_x::Vector{Float64}, force_y::Vector{Float64},
     force_z::Vector{Float64}, pos_x::Vector{Float64}, pos_y::Vector{Float64},
-    pos_z::Vector{Float64}, D_box::Vector{Float64}, kloop::Vector{Int},
-    jloop::Vector{Int})
+    pos_z::Vector{Float64}, D_box::Vector{Float64}, kloop::Vector{Int}, jloop::Vector{Int})
     # initialize
     cutd = 2^(1 / 6) * sigma
     fill!(force_x, 0.0)
@@ -166,8 +163,7 @@ function update_force!(force_x::Vector{Float64}, force_y::Vector{Float64},
         if abs(dx) <= cutd && abs(dy) <= cutd && abs(dz) <= cutd
             dis = sqrt(dx^2 + dy^2 + dz^2)
             if dis <= cutd
-                abs_force = 4 * epsilon * (12 * sigma^12 / dis^13 -
-                                           6 * sigma^6 / dis^7)
+                abs_force = 4 * epsilon * (12 * sigma^12 / dis^13 - 6 * sigma^6 / dis^7)
                 fx = abs_force * dx / dis
                 fy = abs_force * dy / dis
                 fz = abs_force * dz / dis
@@ -183,9 +179,8 @@ function update_force!(force_x::Vector{Float64}, force_y::Vector{Float64},
     return nothing
 end
 
-function calc_energy(pos_x::Vector{Float64}, pos_y::Vector{Float64},
-    pos_z::Vector{Float64}, D_box::Vector{Float64}, kloop::Vector{Int},
-    jloop::Vector{Int})
+function calc_energy(pos_x::Vector{Float64}, pos_y::Vector{Float64}, pos_z::Vector{Float64},
+    D_box::Vector{Float64}, kloop::Vector{Int}, jloop::Vector{Int})
     # initialize
     cutd = 2^(1 / 6) * sigma
     energy_x = zeros(Float64, length(pos_x))
@@ -200,8 +195,7 @@ function calc_energy(pos_x::Vector{Float64}, pos_y::Vector{Float64},
         if abs(dx) <= cutd && abs(dy) <= cutd && abs(dz) <= cutd
             dis = sqrt(dx^2 + dy^2 + dz^2)
             if dis <= cutd
-                abs_energy = 4 * epsilon * (sigma^12 / dis^12 -
-                                            sigma^6 / dis^6) + epsilon
+                abs_energy = 4 * epsilon * (sigma^12 / dis^12 - sigma^6 / dis^6) + epsilon
                 ex = abs_energy * dx / dis
                 ey = abs_energy * dy / dis
                 ez = abs_energy * dz / dis
@@ -220,8 +214,8 @@ end
 """ update idx_ligand without output for equilibrium step (wca)"""
 function update_idx_output_wca!(idx_lig::Vector{Int}, pos_x::Vector{Float64},
     pos_y::Vector{Float64}, pos_z::Vector{Float64}, pos_rec::Vector{Float64},
-    D_box::Vector{Float64}, gamma::Float64, alpha::Float64, Temp::Float64,
-    vx::Float64, cutoff::Float64, Eon::Float64, Eoff::Float64, Eb::Float64)
+    D_box::Vector{Float64}, gamma::Float64, alpha::Float64, Temp::Float64, vx::Float64,
+    cutoff::Float64, Eon::Float64, Eoff::Float64, Eb::Float64)
     within_lig = Int.([])
     if idx_lig[1] == 0
         # finding ligands within cutoff radius
@@ -254,8 +248,8 @@ function update_idx_output_wca!(idx_lig::Vector{Int}, pos_x::Vector{Float64},
             # output[i] = 0
             P_on = length(within_lig) * dt * exp(-(Eb - Eoff) / Temp)
             if rand() <= P_on
-                idx_lig[1] = calc_closest_lig(pos_x, pos_y, pos_z, pos_rec,
-                    within_lig, D_box)
+                idx_lig[1] = calc_closest_lig(pos_x, pos_y, pos_z, pos_rec, within_lig,
+                    D_box)
                 # output[i] = 1
                 pos_x[idx_lig[1]] = pos_rec[1]
                 pos_y[idx_lig[1]] = pos_rec[2]
@@ -279,9 +273,9 @@ end
 """ update idx_ligand and output (wca)"""
 function update_idx_output_wca!(output::Vector{Int}, idx_lig::Vector{Int},
     pos_x::Vector{Float64}, pos_y::Vector{Float64}, pos_z::Vector{Float64},
-    pos_rec::Vector{Float64}, D_box::Vector{Float64}, gamma::Float64,
-    alpha::Float64, Temp::Float64, vx::Float64, cutoff::Float64,
-    Eon::Float64, Eoff::Float64, Eb::Float64, i::Int)
+    pos_rec::Vector{Float64}, D_box::Vector{Float64}, gamma::Float64, alpha::Float64,
+    Temp::Float64, vx::Float64, cutoff::Float64, Eon::Float64, Eoff::Float64, Eb::Float64,
+    i::Int)
     within_lig = Int.([])
     if idx_lig[1] == 0
         # finding ligands within cutoff radius
@@ -312,8 +306,8 @@ function update_idx_output_wca!(output::Vector{Int}, idx_lig::Vector{Int},
         else
             P_on = length(within_lig) * dt * exp(-(Eb - Eoff) / Temp)
             if rand() <= P_on
-                idx_lig[1] = calc_closest_lig(pos_x, pos_y, pos_z, pos_rec,
-                    within_lig, D_box)
+                idx_lig[1] = calc_closest_lig(pos_x, pos_y, pos_z, pos_rec, within_lig,
+                    D_box)
                 output[i] = 1
                 pos_x[idx_lig[1]] = pos_rec[1]
                 pos_y[idx_lig[1]] = pos_rec[2]
@@ -363,8 +357,7 @@ end
 function update_pos_lig!(pos_x::Vector{Float64}, pos_y::Vector{Float64},
     pos_z::Vector{Float64}, force_x::Vector{Float64}, force_y::Vector{Float64},
     force_z::Vector{Float64}, D_box::Vector{Float64}, noise_x::Vector{Float64},
-    noise_y::Vector{Float64}, noise_z::Vector{Float64}, gamma::Float64,
-    Temp::Float64)
+    noise_y::Vector{Float64}, noise_z::Vector{Float64}, gamma::Float64, Temp::Float64)
     randn!(noise_x)
     randn!(noise_y)
     randn!(noise_z)
@@ -384,8 +377,8 @@ end
 """ update idx_lig and position of the bound ligand for equilibrium step """
 function update_idx_output!(idx_lig::Vector{Int}, pos_x::Vector{Float64},
     pos_y::Vector{Float64}, pos_z::Vector{Float64}, pos_rec::Vector{Float64},
-    D_box::Vector{Float64}, gamma::Float64, alpha::Float64, Temp::Float64,
-    vx::Float64, cutoff::Float64, Eon::Float64, Eoff::Float64, Eb::Float64)
+    D_box::Vector{Float64}, gamma::Float64, alpha::Float64, Temp::Float64, vx::Float64,
+    cutoff::Float64, Eon::Float64, Eoff::Float64, Eb::Float64)
     within_lig = Int.([])
     if idx_lig[1] == 0
         # finding ligands within cutoff radius
@@ -426,9 +419,9 @@ end
 """ update idx_lig, position of the bound ligand, and output """
 function update_idx_output!(output::Vector{Int}, idx_lig::Vector{Int},
     pos_x::Vector{Float64}, pos_y::Vector{Float64}, pos_z::Vector{Float64},
-    pos_rec::Vector{Float64}, D_box::Vector{Float64}, gamma::Float64,
-    alpha::Float64, Temp::Float64, vx::Float64, cutoff::Float64, Eon::Float64,
-    Eoff::Float64, Eb::Float64, i::Int)
+    pos_rec::Vector{Float64}, D_box::Vector{Float64}, gamma::Float64, alpha::Float64,
+    Temp::Float64, vx::Float64, cutoff::Float64, Eon::Float64, Eoff::Float64, Eb::Float64,
+    i::Int)
     within_lig = Int.([])
     if idx_lig[1] == 0
         # finding ligands within cutoff radius
@@ -473,8 +466,7 @@ end
 """ update ligand positions """
 function update_pos_lig!(pos_x::Vector{Float64}, pos_y::Vector{Float64},
     pos_z::Vector{Float64}, D_box::Vector{Float64}, noise_x::Vector{Float64},
-    noise_y::Vector{Float64}, noise_z::Vector{Float64}, gamma::Float64,
-    Temp::Float64)
+    noise_y::Vector{Float64}, noise_z::Vector{Float64}, gamma::Float64, Temp::Float64)
     randn!(noise_x)
     randn!(noise_y)
     randn!(noise_z)
@@ -519,8 +511,8 @@ end
 
 """ update positions of receptor and bound ligand (if present) """
 function update_pos_rec!(pos_rec::Vector{Float64}, pos_x::Vector{Float64},
-    pos_y::Vector{Float64}, pos_z::Vector{Float64}, D_box::Vector{Float64},
-    vx::Float64, idx_lig::Vector{Int})
+    pos_y::Vector{Float64}, pos_z::Vector{Float64}, D_box::Vector{Float64}, vx::Float64,
+    idx_lig::Vector{Int})
     # only along X direction
     pos_rec[1] += dt * vx
     # PBC x

@@ -23,8 +23,7 @@ mutable struct Results_freq_all
 end
 
 """
-    run_brownian(Nl, box_x, box_y, box_z, gamma, alpha, Temp, vx, cutoff, Eon,
-                 Eoff, Eb, Nt)
+    run_brownian(Nl, box_x, box_y, box_z, gamma, alpha, Temp, vx, cutoff, Eon, Eoff, Eb, Nt)
 
 Compute the binding-unbinding events modeled as free Brownian particles.
 
@@ -62,10 +61,9 @@ function run_brownian(Nl::Int, box_x::Float64, box_y::Float64, box_z::Float64,
     eq_step = 1000000 # with 1 million steps
     p = Progress(eq_step, 1) # for progress bar
     for i = 1:eq_step
-        update_idx_output!(idx_lig, pos_x, pos_y, pos_z, pos_rec, D_box, gamma,
-            alpha, Temp, vx, cutoff, Eon, Eoff, Eb)
-        update_pos_lig!(pos_x, pos_y, pos_z, D_box, noise_x, noise_y, noise_z,
-            gamma, Temp)
+        update_idx_output!(idx_lig, pos_x, pos_y, pos_z, pos_rec, D_box, gamma, alpha, Temp,
+            vx, cutoff, Eon, Eoff, Eb)
+        update_pos_lig!(pos_x, pos_y, pos_z, D_box, noise_x, noise_y, noise_z, gamma, Temp)
         update_pos_rec!(pos_rec, pos_x, pos_y, pos_z, D_box, vx, idx_lig)
         next!(p) # for progress bar
     end
@@ -73,10 +71,9 @@ function run_brownian(Nl::Int, box_x::Float64, box_y::Float64, box_z::Float64,
     println("2. Production run")
     p = Progress(Nt, 1) # for progress bar
     for i = 1:Nt
-        update_idx_output!(output, idx_lig, pos_x, pos_y, pos_z, pos_rec, D_box,
-            gamma, alpha, Temp, vx, cutoff, Eon, Eoff, Eb, i)
-        update_pos_lig!(pos_x, pos_y, pos_z, D_box, noise_x, noise_y, noise_z,
-            gamma, Temp)
+        update_idx_output!(output, idx_lig, pos_x, pos_y, pos_z, pos_rec, D_box, gamma,
+            alpha, Temp, vx, cutoff, Eon, Eoff, Eb, i)
+        update_pos_lig!(pos_x, pos_y, pos_z, D_box, noise_x, noise_y, noise_z, gamma, Temp)
         update_pos_rec!(pos_rec, pos_x, pos_y, pos_z, D_box, vx, idx_lig)
         next!(p) # for progress bar
     end
@@ -84,8 +81,8 @@ function run_brownian(Nl::Int, box_x::Float64, box_y::Float64, box_z::Float64,
 end
 
 """
-    run_brownian_traj(Nl, box_x, box_y, box_z, gamma, alpha, Temp, vx, cutoff,
-                      Eon, Eoff, Eb, Nt, freq, file_name)
+    run_brownian_traj(Nl, box_x, box_y, box_z, gamma, alpha, Temp, vx, cutoff, Eon, Eoff,
+                      Eb, Nt, freq, file_name)
 
 Compute the binding-unbinding events modeled as free Brownian particles
 
@@ -107,10 +104,9 @@ It will also produce a XYZ-type trajectory file for ligand & receptor particles.
 - `freq::Int`: save trajectory every "freq" time step
 - `file_name::String`: file name for trajectory
 """
-function run_brownian_traj(Nl::Int, box_x::Float64, box_y::Float64,
-    box_z::Float64, gamma::Float64, alpha::Float64, Temp::Float64, vx::Float64,
-    cutoff::Float64, Eon::Float64, Eoff::Float64, Eb::Float64, Nt::Int,
-    freq::Int, file_name::String)
+function run_brownian_traj(Nl::Int, box_x::Float64, box_y::Float64, box_z::Float64,
+    gamma::Float64, alpha::Float64, Temp::Float64, vx::Float64, cutoff::Float64,
+    Eon::Float64, Eoff::Float64, Eb::Float64, Nt::Int, freq::Int, file_name::String)
     # building ligands and a single receptor in the box
     output = zeros(Int, Nt) # counts
     D_box = Float64[box_x, box_y, box_z] # box dimension
@@ -127,10 +123,9 @@ function run_brownian_traj(Nl::Int, box_x::Float64, box_y::Float64,
     eq_step = 1000000 # with 1 million steps
     p = Progress(eq_step, 1) # for progress bar
     for i = 1:eq_step
-        update_idx_output!(idx_lig, pos_x, pos_y, pos_z, pos_rec, D_box, gamma,
-            alpha, Temp, vx, cutoff, Eon, Eoff, Eb)
-        update_pos_lig!(pos_x, pos_y, pos_z, D_box, noise_x, noise_y, noise_z,
-            gamma, Temp)
+        update_idx_output!(idx_lig, pos_x, pos_y, pos_z, pos_rec, D_box, gamma, alpha, Temp,
+            vx, cutoff, Eon, Eoff, Eb)
+        update_pos_lig!(pos_x, pos_y, pos_z, D_box, noise_x, noise_y, noise_z, gamma, Temp)
         update_pos_rec!(pos_rec, pos_x, pos_y, pos_z, D_box, vx, idx_lig)
         next!(p) # for progress bar
     end
@@ -139,10 +134,9 @@ function run_brownian_traj(Nl::Int, box_x::Float64, box_y::Float64,
     io = open(string(file_name, ".xyz"), "w") # trajectory file
     p = Progress(Nt, 1) # for progress bar
     for i = 1:Nt
-        update_idx_output!(output, idx_lig, pos_x, pos_y, pos_z, pos_rec, D_box,
-            gamma, alpha, Temp, vx, cutoff, Eon, Eoff, Eb, i)
-        update_pos_lig!(pos_x, pos_y, pos_z, D_box, noise_x, noise_y, noise_z,
-            gamma, Temp)
+        update_idx_output!(output, idx_lig, pos_x, pos_y, pos_z, pos_rec, D_box, gamma,
+            alpha, Temp, vx, cutoff, Eon, Eoff, Eb, i)
+        update_pos_lig!(pos_x, pos_y, pos_z, D_box, noise_x, noise_y, noise_z, gamma, Temp)
         update_pos_rec!(pos_rec, pos_x, pos_y, pos_z, D_box, vx, idx_lig)
         if freq == 0 # no trajectory
         elseif rem(i, freq) == 0 # ever freq step
@@ -158,8 +152,8 @@ function run_brownian_traj(Nl::Int, box_x::Float64, box_y::Float64,
 end
 
 """
-    run_brownian_freq(Nl, box_x, box_y, box_z, gamma, alpha, Temp, vx, cutoff,
-                      Eon, Eoff, Eb, Nt, n_t, time_lag)
+    run_brownian_freq(Nl, box_x, box_y, box_z, gamma, alpha, Temp, vx, cutoff, Eon, Eoff,
+                      Eb, Nt, n_t, time_lag)
 
 Compute the binding-unbinding events modeled as free Brownian particles
 
@@ -183,10 +177,9 @@ when n\\_t = 2, freq = [freq00, freq01, freq10, freq11]
 - `n_t::Int`: n-point trajectories
 - `time_lag::Int`: time lag
 """
-function run_brownian_freq(Nl::Int, box_x::Float64, box_y::Float64,
-    box_z::Float64, gamma::Float64, alpha::Float64, Temp::Float64, vx::Float64,
-    cutoff::Float64, Eon::Float64, Eoff::Float64, Eb::Float64, Nt::Int,
-    n_t::Int, time_lag::Int)
+function run_brownian_freq(Nl::Int, box_x::Float64, box_y::Float64, box_z::Float64,
+    gamma::Float64, alpha::Float64, Temp::Float64, vx::Float64, cutoff::Float64,
+    Eon::Float64, Eoff::Float64, Eb::Float64, Nt::Int, n_t::Int, time_lag::Int)
     # building ligands and a single receptor in the box
     D_box = Float64[box_x, box_y, box_z] # box dimension
     pos_x = D_box[1] .* rand(Nl) # X positions of ligands
@@ -204,10 +197,9 @@ function run_brownian_freq(Nl::Int, box_x::Float64, box_y::Float64,
     eq_step = 1000000 # with 1 million steps
     p = Progress(eq_step, 1) # for progress bar
     for i = 1:eq_step
-        update_idx_output!(idx_lig, pos_x, pos_y, pos_z, pos_rec, D_box, gamma,
-            alpha, Temp, vx, cutoff, Eon, Eoff, Eb)
-        update_pos_lig!(pos_x, pos_y, pos_z, D_box, noise_x, noise_y, noise_z,
-            gamma, Temp)
+        update_idx_output!(idx_lig, pos_x, pos_y, pos_z, pos_rec, D_box, gamma, alpha, Temp,
+            vx, cutoff, Eon, Eoff, Eb)
+        update_pos_lig!(pos_x, pos_y, pos_z, D_box, noise_x, noise_y, noise_z, gamma, Temp)
         update_pos_rec!(pos_rec, pos_x, pos_y, pos_z, D_box, vx, idx_lig)
         next!(p) # for progress bar
     end
@@ -215,11 +207,10 @@ function run_brownian_freq(Nl::Int, box_x::Float64, box_y::Float64,
     println("2. Production run")
     p = Progress(Nt, 1) # for progress bar
     for i = 1:Nt
-        output = update_idx!(idx_lig, pos_x, pos_y, pos_z, pos_rec, D_box,
-            gamma, alpha, vx, Temp, cutoff, Eon, Eoff, Eb)
+        output = update_idx!(idx_lig, pos_x, pos_y, pos_z, pos_rec, D_box, gamma, alpha, vx,
+            Temp, cutoff, Eon, Eoff, Eb)
         count_freq!(seg, freq, i, output, n_t, time_lag)
-        update_pos_lig!(pos_x, pos_y, pos_z, D_box, noise_x, noise_y, noise_z,
-            gamma, Temp)
+        update_pos_lig!(pos_x, pos_y, pos_z, D_box, noise_x, noise_y, noise_z, gamma, Temp)
         update_pos_rec!(pos_rec, pos_x, pos_y, pos_z, D_box, vx, idx_lig)
         next!(p) # for progress bar
     end
@@ -227,8 +218,8 @@ function run_brownian_freq(Nl::Int, box_x::Float64, box_y::Float64,
 end
 
 """
-    run_brownian_freq_all(Nl, box_x, box_y, box_z, gamma, alpha, Temp, vx,
-                          cutoff, Eon, Eoff, Eb, Nt, n_t_vec, time_lag)
+    run_brownian_freq_all(Nl, box_x, box_y, box_z, gamma, alpha, Temp, vx, cutoff, Eon, 
+                          Eoff, Eb, Nt, n_t_vec, time_lag)
 
 Compute the binding-unbinding events modeled as free Brownian particles
 
@@ -255,10 +246,9 @@ freq = Dict[2 => [freq00, freq01, freq10, freq11],
 - `n_t_vec::Vector{Int}`: n-point trajectories
 - `time_lag::Int`: time lag
 """
-function run_brownian_freq_all(Nl::Int, box_x::Float64, box_y::Float64,
-    box_z::Float64, gamma::Float64, alpha::Float64, Temp::Float64, vx::Float64,
-    cutoff::Float64, Eon::Float64, Eoff::Float64, Eb::Float64, Nt::Int,
-    n_t_vec::Vector{Int}, time_lag::Int)
+function run_brownian_freq_all(Nl::Int, box_x::Float64, box_y::Float64, box_z::Float64,
+    gamma::Float64, alpha::Float64, Temp::Float64, vx::Float64, cutoff::Float64,
+    Eon::Float64, Eoff::Float64, Eb::Float64, Nt::Int, n_t_vec::Vector{Int}, time_lag::Int)
     # building ligands and a single receptor in the box
     D_box = Float64[box_x, box_y, box_z] # box dimension
     pos_x = D_box[1] .* rand(Nl) # X positions of ligands
@@ -276,10 +266,9 @@ function run_brownian_freq_all(Nl::Int, box_x::Float64, box_y::Float64,
     eq_step = 1000000 # with 1 million steps
     p = Progress(eq_step, 1) # for progress bar
     for i = 1:eq_step
-        update_idx_output!(idx_lig, pos_x, pos_y, pos_z, pos_rec, D_box, gamma,
-            alpha, Temp, vx, cutoff, Eon, Eoff, Eb)
-        update_pos_lig!(pos_x, pos_y, pos_z, D_box, noise_x, noise_y, noise_z,
-            gamma, Temp)
+        update_idx_output!(idx_lig, pos_x, pos_y, pos_z, pos_rec, D_box, gamma, alpha, Temp,
+            vx, cutoff, Eon, Eoff, Eb)
+        update_pos_lig!(pos_x, pos_y, pos_z, D_box, noise_x, noise_y, noise_z, gamma, Temp)
         update_pos_rec!(pos_rec, pos_x, pos_y, pos_z, D_box, vx, idx_lig)
         next!(p) # for progress bar
     end
@@ -287,11 +276,10 @@ function run_brownian_freq_all(Nl::Int, box_x::Float64, box_y::Float64,
     println("2. Production run")
     p = Progress(Nt, 1) # for progress bar
     for i = 1:Nt
-        output = update_idx!(idx_lig, pos_x, pos_y, pos_z, pos_rec, D_box,
-            gamma, alpha, vx, Temp, cutoff, Eon, Eoff, Eb)
+        output = update_idx!(idx_lig, pos_x, pos_y, pos_z, pos_rec, D_box, gamma, alpha, vx,
+            Temp, cutoff, Eon, Eoff, Eb)
         count_freq!(seg, freq, i, output, time_lag)
-        update_pos_lig!(pos_x, pos_y, pos_z, D_box, noise_x, noise_y, noise_z,
-            gamma, Temp)
+        update_pos_lig!(pos_x, pos_y, pos_z, D_box, noise_x, noise_y, noise_z, gamma, Temp)
         update_pos_rec!(pos_rec, pos_x, pos_y, pos_z, D_box, vx, idx_lig)
         next!(p) # for progress bar
     end
@@ -299,8 +287,7 @@ function run_brownian_freq_all(Nl::Int, box_x::Float64, box_y::Float64,
 end
 
 """
-    run_wca(Nl, box_x, box_y, box_z, gamma, alpha, Temp, vx, cutoff, Eon, Eoff,
-            Eb, Nt)
+    run_wca(Nl, box_x, box_y, box_z, gamma, alpha, Temp, vx, cutoff, Eon, Eoff, Eb, Nt)
 
 Compute the binding-unbinding events modeled with the WCA potential
 
@@ -319,9 +306,9 @@ It will return binary sequence s(t) and the particle positions in the last step
 - `Eb::Float64`: energy of the barrier
 - `Nt::Int`: total time steps
 """
-function run_wca(Nl::Int, box_x::Float64, box_y::Float64, box_z::Float64,
-    gamma::Float64, alpha::Float64, Temp::Float64, vx::Float64, cutoff::Float64,
-    Eon::Float64, Eoff::Float64, Eb::Float64, Nt::Int)
+function run_wca(Nl::Int, box_x::Float64, box_y::Float64, box_z::Float64, gamma::Float64,
+    alpha::Float64, Temp::Float64, vx::Float64, cutoff::Float64, Eon::Float64,
+    Eoff::Float64, Eb::Float64, Nt::Int)
     # building ligands and a single receptor in the box
     output = zeros(Int, Nt) # counts
     D_box = Float64[box_x, box_y, box_z] # box dimension
@@ -339,19 +326,18 @@ function run_wca(Nl::Int, box_x::Float64, box_y::Float64, box_z::Float64,
     idx_lig = [0] # 0 for unbound state, or index of a ligand (bound)
     # Energy minimization
     println("0. Energy Minimization")
-    steepest_descent!(pos_x, pos_y, pos_z, force_x, force_y, force_z, D_box,
-        kloop, jloop, 1000)
+    steepest_descent!(pos_x, pos_y, pos_z, force_x, force_y, force_z, D_box, kloop, jloop,
+        1000)
     # equilibrium with 1 million steps
     println("1. Equilibrium step")
     eq_step = 1000000 # with 1 million steps
     p = Progress(eq_step, 1) # for progress bar
     for i = 1:eq_step
-        update_idx_output_wca!(idx_lig, pos_x, pos_y, pos_z, pos_rec, D_box,
-            gamma, alpha, Temp, vx, cutoff, Eon, Eoff, Eb) # no output
-        update_force!(force_x, force_y, force_z, pos_x, pos_y, pos_z, D_box,
-            kloop, jloop)
-        update_pos_lig!(pos_x, pos_y, pos_z, force_x, force_y, force_z, D_box,
-            noise_x, noise_y, noise_z, gamma, Temp)
+        update_idx_output_wca!(idx_lig, pos_x, pos_y, pos_z, pos_rec, D_box, gamma, alpha,
+            Temp, vx, cutoff, Eon, Eoff, Eb) # no output
+        update_force!(force_x, force_y, force_z, pos_x, pos_y, pos_z, D_box, kloop, jloop)
+        update_pos_lig!(pos_x, pos_y, pos_z, force_x, force_y, force_z, D_box, noise_x,
+            noise_y, noise_z, gamma, Temp)
         update_pos_rec!(pos_rec, pos_x, pos_y, pos_z, D_box, vx, idx_lig)
         next!(p) # for progress bar
     end
@@ -359,12 +345,11 @@ function run_wca(Nl::Int, box_x::Float64, box_y::Float64, box_z::Float64,
     println("2. Production run")
     p = Progress(Nt, 1) # for progress bar
     for i = 1:Nt # iteration
-        update_idx_output_wca!(output, idx_lig, pos_x, pos_y, pos_z, pos_rec,
-            D_box, gamma, alpha, Temp, vx, cutoff, Eon, Eoff, Eb, i)
-        update_force!(force_x, force_y, force_z, pos_x, pos_y, pos_z, D_box,
-            kloop, jloop)
-        update_pos_lig!(pos_x, pos_y, pos_z, force_x, force_y, force_z, D_box,
-            noise_x, noise_y, noise_z, gamma, Temp)
+        update_idx_output_wca!(output, idx_lig, pos_x, pos_y, pos_z, pos_rec, D_box, gamma,
+            alpha, Temp, vx, cutoff, Eon, Eoff, Eb, i)
+        update_force!(force_x, force_y, force_z, pos_x, pos_y, pos_z, D_box, kloop, jloop)
+        update_pos_lig!(pos_x, pos_y, pos_z, force_x, force_y, force_z, D_box, noise_x,
+            noise_y, noise_z, gamma, Temp)
         update_pos_rec!(pos_rec, pos_x, pos_y, pos_z, D_box, vx, idx_lig)
         next!(p) # for progress bar
     end
@@ -372,8 +357,8 @@ function run_wca(Nl::Int, box_x::Float64, box_y::Float64, box_z::Float64,
 end
 
 """
-    run_wca_traj(Nl, box_x, box_y, box_z, gamma, alpha, Temp, vx, cutoff, Eon,
-                 Eoff, Eb, Nt, freq, file_name)
+    run_wca_traj(Nl, box_x, box_y, box_z, gamma, alpha, Temp, vx, cutoff, Eon, Eoff, Eb, Nt,
+                 freq, file_name)
 
 Compute the binding-unbinding events modeled with the WCA potential
 
@@ -397,8 +382,7 @@ It will also produce a XYZ-type trajectory file for ligand & receptor particles
 """
 function run_wca_traj(Nl::Int, box_x::Float64, box_y::Float64, box_z::Float64,
     gamma::Float64, alpha::Float64, Temp::Float64, vx::Float64, cutoff::Float64,
-    Eon::Float64, Eoff::Float64, Eb::Float64, Nt::Int, freq::Int,
-    file_name::String)
+    Eon::Float64, Eoff::Float64, Eb::Float64, Nt::Int, freq::Int, file_name::String)
     # building ligands and a single receptor in the box
     output = zeros(Int, Nt) # counts
     D_box = Float64[box_x, box_y, box_z] # box dimension
@@ -416,19 +400,18 @@ function run_wca_traj(Nl::Int, box_x::Float64, box_y::Float64, box_z::Float64,
     idx_lig = [0] # 0 for unbound state, or index of a ligand (bound)
     # Energy minimization
     println("0. Energy Minimization")
-    steepest_descent!(pos_x, pos_y, pos_z, force_x, force_y, force_z, D_box,
-        kloop, jloop, 1000)
+    steepest_descent!(pos_x, pos_y, pos_z, force_x, force_y, force_z, D_box, kloop, jloop,
+        1000)
     # equilibrium with 1 million steps
     println("1. Equilibrium step")
     eq_step = 1000000 # with 1 million steps
     p = Progress(eq_step, 1) # for progress bar
     for i = 1:eq_step
-        update_idx_output_wca!(idx_lig, pos_x, pos_y, pos_z, pos_rec, D_box,
-            gamma, alpha, Temp, vx, cutoff, Eon, Eoff, Eb) # no output
-        update_force!(force_x, force_y, force_z, pos_x, pos_y, pos_z, D_box,
-            kloop, jloop)
-        update_pos_lig!(pos_x, pos_y, pos_z, force_x, force_y, force_z, D_box,
-            noise_x, noise_y, noise_z, gamma, Temp)
+        update_idx_output_wca!(idx_lig, pos_x, pos_y, pos_z, pos_rec, D_box, gamma, alpha,
+            Temp, vx, cutoff, Eon, Eoff, Eb) # no output
+        update_force!(force_x, force_y, force_z, pos_x, pos_y, pos_z, D_box, kloop, jloop)
+        update_pos_lig!(pos_x, pos_y, pos_z, force_x, force_y, force_z, D_box, noise_x,
+            noise_y, noise_z, gamma, Temp)
         update_pos_rec!(pos_rec, pos_x, pos_y, pos_z, D_box, vx, idx_lig)
         next!(p) # for progress bar
     end
@@ -437,12 +420,11 @@ function run_wca_traj(Nl::Int, box_x::Float64, box_y::Float64, box_z::Float64,
     io = open(string(file_name, ".xyz"), "w") # trajectory file
     p = Progress(Nt, 1) # for progress bar
     for i = 1:Nt # iteration
-        update_idx_output_wca!(output, idx_lig, pos_x, pos_y, pos_z, pos_rec,
-            D_box, gamma, alpha, Temp, vx, cutoff, Eon, Eoff, Eb, i)
-        update_force!(force_x, force_y, force_z, pos_x, pos_y, pos_z, D_box,
-            kloop, jloop)
-        update_pos_lig!(pos_x, pos_y, pos_z, force_x, force_y, force_z, D_box,
-            noise_x, noise_y, noise_z, gamma, Temp)
+        update_idx_output_wca!(output, idx_lig, pos_x, pos_y, pos_z, pos_rec, D_box, gamma,
+            alpha, Temp, vx, cutoff, Eon, Eoff, Eb, i)
+        update_force!(force_x, force_y, force_z, pos_x, pos_y, pos_z, D_box, kloop, jloop)
+        update_pos_lig!(pos_x, pos_y, pos_z, force_x, force_y, force_z, D_box, noise_x,
+            noise_y, noise_z, gamma, Temp)
         update_pos_rec!(pos_rec, pos_x, pos_y, pos_z, D_box, vx, idx_lig)
         if freq == 0 # no trajectory
         elseif rem(i, freq) == 0 # ever freq step
